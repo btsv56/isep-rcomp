@@ -1,0 +1,164 @@
+hostname Router
+!
+!
+!
+!
+ip dhcp excluded-address 10.165.102.129
+ip dhcp excluded-address 10.165.102.193
+ip dhcp excluded-address 10.165.103.1
+ip dhcp excluded-address 10.165.102.1
+ip dhcp excluded-address 10.165.103.33
+!
+ip dhcp pool VOIP
+ network 10.165.103.32 255.255.255.224
+ option 150 ip 10.165.103.33
+ dns-server 10.165.104.1
+ domain-name dns.rcomp-19-20-db-g1
+ip dhcp pool GROUND
+ network 10.165.102.128 255.255.255.192
+ default-router 10.165.102.129
+ dns-server 10.165.104.1
+domain-name dns.rcomp-19-20-db-g1
+ip dhcp pool FIRST
+ network 10.165.102.192 255.255.255.192
+ default-router 10.165.102.193
+ dns-server 10.165.104.1
+domain-name dns.rcomp-19-20-db-g1
+ip dhcp pool WIFI
+ network 10.165.103.0 255.255.255.224
+ default-router 10.165.103.1
+ dns-server 10.165.104.1
+domain-name dns.rcomp-19-20-db-g1
+
+interface FastEthernet1/0.1
+ encapsulation dot1Q 111
+ ip address 10.165.102.129 255.255.255.192
+ ip nat outside
+!
+interface FastEthernet1/0.2
+ encapsulation dot1Q 112
+ ip address 10.165.102.193 255.255.255.192
+ ip nat outside
+!
+interface FastEthernet1/0.3
+ encapsulation dot1Q 113
+ ip address 10.165.103.1 255.255.255.224
+ ip nat outside
+!
+interface FastEthernet1/0.4
+ encapsulation dot1Q 114
+ ip address 10.165.102.1 255.255.255.128
+ ip nat inside
+!
+interface FastEthernet1/0.5
+ encapsulation dot1Q 115
+ ip address 10.165.103.33 255.255.255.224
+ ip nat outside
+!
+interface FastEthernet1/0.6
+ encapsulation dot1Q 105
+ ip address 10.165.104.1 255.255.255.128
+ ip nat outside
+
+
+router ospf 1
+ network 10.165.102.0 0.0.1.255 area 1
+ network 10.165.104.0 0.0.0.127 area 0
+
+ip nat inside source static udp 10.165.102.2 53 10.165.104.1 53 
+ip nat inside source static tcp 10.165.102.2 53 10.165.104.1 53 
+ip nat inside source static tcp 10.165.102.3 80 10.165.104.1 80 
+ip nat inside source static tcp 10.165.102.3 443 10.165.104.1 443
+
+access-list 100 permit ip host 0.0.0.0 host 255.255.255.255
+access-list 100 permit udp 10.165.102.128 0.0.0.63 host 10.165.104.1 eq 53
+access-list 100 permit tcp 10.165.102.128 0.0.0.63 host 10.165.104.1 eq 53
+access-list 100 permit tcp 10.165.102.128 0.0.0.63 host 10.165.104.1 eq 80
+access-list 100 permit tcp 10.165.102.128 0.0.0.63 host 10.165.104.1 eq 443
+access-list 100 deny ip any host 10.165.104.1
+access-list 100 deny ip any host 10.165.102.129
+access-list 100 permit ip 10.165.102.128 0.0.0.63 any
+
+access-list 101 permit ip host 0.0.0.0 host 255.255.255.255
+access-list 101 permit udp 10.165.102.192 0.0.0.63 host 10.165.104.1 eq 53
+access-list 101 permit tcp 10.165.102.192 0.0.0.63 host 10.165.104.1 eq 53
+access-list 101 permit tcp 10.165.102.192 0.0.0.63 host 10.165.104.1 eq 80
+access-list 101 permit tcp 10.165.102.192 0.0.0.63 host 10.165.104.1 eq 443
+access-list 101 deny ip any host 10.165.104.1
+access-list 101 deny ip any host 10.165.102.193
+access-list 101 permit ip 10.165.102.192 0.0.0.63 any
+
+access-list 102 permit ip host 0.0.0.0 host 255.255.255.255
+access-list 102 permit udp 10.165.103.0 0.0.0.31 host 10.165.104.1 eq 53
+access-list 102 permit tcp 10.165.103.0 0.0.0.31 host 10.165.104.1 eq 53
+access-list 102 permit tcp 10.165.103.0 0.0.0.31 host 10.165.104.1 eq 80
+access-list 102 permit tcp 10.165.103.0 0.0.0.31 host 10.165.104.1 eq 443
+access-list 102 deny ip any host 10.165.104.1
+access-list 102 deny ip any host 10.165.103.1
+access-list 102 permit ip 10.165.103.0 0.0.0.31 any
+
+access-list 105 deny ip 10.165.102.0 0.0.0.127 any
+access-list 105 permit icmp any any echo
+access-list 105 permit udp any host 10.165.102.2
+access-list 105 permit tcp any host 10.165.102.2 eq 53
+access-list 105 permit tcp any host 10.165.102.3 eq 80
+access-list 105 permit tcp any host 10.165.102.3 eq 443
+
+
+access-list 103 permit ip host 0.0.0.0 host 255.255.255.255
+access-list 103 permit udp 10.165.103.32 0.0.0.31 host 10.165.104.1 eq 69
+access-list 103 permit tcp 10.165.103.32 0.0.0.31 host 10.165.104.1 eq 2000
+access-list 103 permit ip 10.165.103.32 0.0.0.31 any
+
+access-list 104 deny ip 10.165.102.0 0.0.1.255 any	
+access-list 104 permit ospf any host 10.165.104.1
+access-list 104 permit udp any host 10.165.104.1 eq 53
+access-list 104 permit tcp any host 10.165.104.1 eq 53
+access-list 104 permit tcp any host 10.165.104.1 eq 80
+access-list 104 permit tcp any host 10.165.104.1 eq 443
+access-list 104 permit tcp any host 10.165.104.1 eq 2000
+access-list 104 permit tcp any host 10.165.104.1
+access-list 104 deny ip any host 10.165.104.1
+access-list 104 permit ip any any
+!
+interface FastEthernet1/0.1
+ ip access-group 100 in
+!
+interface FastEthernet1/0.2
+ ip access-group 101 in
+!
+interface FastEthernet1/0.3
+ ip access-group 102 in
+!
+interface FastEthernet1/0.4
+ ip access-group 105 out
+!
+interface FastEthernet1/0.5
+ ip access-group 103 in
+!
+interface FastEthernet1/0.6
+ ip access-group 104 in 
+
+dial-peer voice 1 voip
+ destination-pattern 2...
+ session target ipv4:10.165.104.2
+!
+dial-peer voice 3 voip
+ destination-pattern 3...
+ session target ipv4:10.165.104.3
+!
+dial-peer voice 4 voip
+ destination-pattern 4...
+ session target ipv4:10.165.104.4
+!
+telephony-service
+ max-ephones 2
+ max-dn 2
+ ip source-address 10.165.103.33 port 2000
+ auto assign 1 to 2
+!
+ephone-dn 1
+ number 1000
+!
+ephone-dn 2
+ number 1001

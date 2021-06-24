@@ -1,0 +1,100 @@
+!
+version 12.4
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Router
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+ shutdown
+!
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+ shutdown
+!
+interface FastEthernet1/0
+ ip address 10.165.104.4 255.255.255.128
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+router ospf 2
+ log-adjacency-changes
+ network 10.165.98.0 0.0.1.255 area 4
+ network 10.165.104.0 0.0.0.127 area 0
+!
+router rip
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+!
+!
+!
+!
+!
+!
+dial-peer voice 1 voip
+ destination-pattern 1...
+ session target ipv4:10.165.104.1
+!
+dial-peer voice 2 voip
+ destination-pattern 2...
+ session target ipv4:10.165.104.2
+!
+dial-peer voice 3 voip
+ destination-pattern 3...
+ session target ipv4:10.165.104.3
+!
+dial-peer voice 5 voip
+ destination-pattern ....
+ session target ipv4:10.165.104.5
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
+

@@ -1,0 +1,105 @@
+!
+version 12.4
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Router
+!
+!
+!
+!
+!
+!
+!
+!
+no ip cef
+no ipv6 cef
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ ip address 17.10.10.86 255.255.255.252
+ ip access-group 100 in
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+ shutdown
+!
+interface FastEthernet1/0
+ ip address 10.165.104.5 255.255.255.128
+ ip access-group 101 in
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+router ospf 1
+ log-adjacency-changes
+ network 10.165.104.0 0.0.0.127 area 0
+ default-information originate
+!
+ip classless
+ip route 0.0.0.0 0.0.0.0 17.10.10.85 
+!
+ip flow-export version 9
+!
+!
+access-list 100 deny ip 10.165.96.0 0.0.15.255 any
+access-list 100 permit ip any any
+access-list 101 permit ip 10.165.96.0 0.0.15.255 any
+!
+no cdp run
+!
+!
+!
+!
+!
+!
+dial-peer voice 1 voip
+ destination-pattern 1...
+ session target ipv4:10.165.104.1
+!
+dial-peer voice 2 voip
+ destination-pattern 2...
+ session target ipv4:10.165.104.2
+!
+dial-peer voice 3 voip
+ destination-pattern 3...
+ session target ipv4:10.165.104.3
+!
+dial-peer voice 4 voip
+ destination-pattern 4...
+ session target ipv4:10.165.104.4
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
+
